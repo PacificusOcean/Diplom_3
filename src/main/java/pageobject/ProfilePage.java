@@ -3,14 +3,12 @@ package pageobject;
 import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import io.qameta.allure.Step;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
+
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import utilities.ElementWaiter;
 import java.time.Duration;
-import java.time.Duration;
+
 
 
 public class ProfilePage {
@@ -104,38 +102,7 @@ public class ProfilePage {
         return passwordField;
     }
 
-    @Step("Проверка видимости логотипа")
-    public boolean isPageLogoVisible() {
-        try {
-            waiter.waitForElement(pageLogo);
-            return driver.findElement(pageLogo).isDisplayed();
-        } catch (AssertionError e) {
-            return false;
-        }
-    }
-    @Step("Проверка видимости кнопки сохранть")
-    public boolean isSaveButtonVisible() {
-        try {
-            waiter.waitForElement(saveButton);
-            return driver.findElement(saveButton).isDisplayed();
-        } catch (AssertionError e) {
-            return false;
-        }
-    }
-    @Step("Переход в конструктор через профиль")
-    public void goToConstructorFromProfile() {
-        MainPage mainPage = new MainPage(driver);
-        mainPage.clickAccountButton();
-        mainPage.isElementDisplayed(By.xpath("//p[contains(text(),'Личный Кабинет')]"), Duration.ofSeconds(10));
-        new WebDriverWait(driver, Duration.ofSeconds(10))
-                .until(ExpectedConditions.presenceOfElementLocated(By.xpath("//a[text()='Профиль']")));
-        driver.findElement(By.xpath("//a[text()='Профиль']")).click();
-        new WebDriverWait(driver, Duration.ofSeconds(10))
-                .until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[@id='root']/div/header/nav/ul/li[1]/a/p")));
-        driver.findElement(By.xpath("//*[@id='root']/div/header/nav/ul/li[1]/a/p")).click();
 
-
-    }
 
 }
 

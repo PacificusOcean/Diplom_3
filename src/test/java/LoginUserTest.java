@@ -14,16 +14,20 @@ import pageobject.LoginPage;
 import pageobject.MainPage;
 import pageobject.RegisterPage;
 import utilities.Base;
-import org.openqa.selenium.support.ui.ExpectedConditions;
+
 import org.openqa.selenium.support.ui.WebDriverWait;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElementLocated;
+
+
 
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
 
 import utilities.WebDriverFactory;
-
-import static org.junit.Assert.assertEquals;
 
 @RunWith(Parameterized.class)
 
@@ -32,14 +36,11 @@ public class LoginUserTest  extends Base {
     private String name;
     private String email;
     private String password;
-    private final String browser;
-    private Faker faker;
+    private final Faker faker = new Faker();
     private String shortPassword;
 
     public LoginUserTest(String browser) {
 
-        this.browser = browser;
-        faker = new Faker();
     }
 
 
@@ -92,58 +93,53 @@ public class LoginUserTest  extends Base {
     @Step("Проверка перехода на страницу логина после регистрации")
     private void checkLoginPageAfterRegistration() {
         driver.get(LOGIN_URL);
-        new WebDriverWait(driver, Duration.ofSeconds(30))
-                .until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[@id='root']/div/main/div/form/fieldset[1]/div/div/input")));
-
-        //  Проверка элементов на странице логина
-        if (!isLoginPageLoaded()) {
-            throw new AssertionError("Страница логина не загрузилась корректно.");
-        }
-    }
-
-    @Step("Проверка  появления ошибки на странице регистрации")
-    private void verifyErrorText() {
-        WebElement errorTextElement = null;
         try {
-            errorTextElement = new WebDriverWait(driver, Duration.ofSeconds(30))
-                    .until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[@id='root']/div/main/div/form/fieldset[3]/div/p")));
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+            WebElement emailField = wait.until(presenceOfElementLocated(By.xpath("//*[@id='root']/div/main/div/form/fieldset[1]/div/div/input")));
+            assertTrue(emailField.isDisplayed());
+
+            WebElement passwordField = wait.until(presenceOfElementLocated(By.xpath("//*[@id='root']/div/main/div/form/fieldset[2]/div/div/input")));
+            assertTrue(passwordField.isDisplayed());
+
+            WebElement loginButton = wait.until(presenceOfElementLocated(By.xpath("//*[@id='root']/div/main/div/form/button")));
+            assertTrue(loginButton.isDisplayed());
 
 
-            String errorMessage = errorTextElement.getText();
-            System.out.println("Текст ошибки: " + errorMessage);  // Output error message
+        } catch (Exception e) {
+            System.err.println("Ошибка при проверке элементов страницы логина: " + e.getMessage());
+            fail();
+        }
+
+    }
+    @Step("Проверка появления ошибки на странице регистрации")
+    private void verifyErrorText(String expectedErrorMessage) {
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+            WebElement errorTextElement = wait.until(presenceOfElementLocated(By.xpath("//*[@id='root']/div/main/div/form/fieldset[3]/div/p")));
+            String actualErrorMessage = errorTextElement.getText();
+
+            assertEquals(expectedErrorMessage, actualErrorMessage, "Некорректный пароль");
+            System.out.println("Текст ошибки: " + actualErrorMessage);
 
         } catch (NoSuchElementException e) {
-            System.err.println("Элемент ошибки не найден");
-            throw new AssertionError("Элемент ошибки не найден", e);
+            fail("Элемент ошибки не найден."); // Убираем e
         } catch (TimeoutException e) {
-            System.err.println("Элемент ошибки не найден в течение заданного времени");
-            throw new AssertionError("Элемент ошибки не найден в течение заданного времени", e);
+            fail("Элемент ошибки не найден в течение заданного времени.");
+        } catch (Exception e) {
+            fail("Ошибка при проверке текста ошибки: " + e.getMessage());
         }
     }
 
 
 
-    protected boolean isLoginPageLoaded() {
-        try {
-            WebElement emailField = driver.findElement(By.xpath("//*[@id='root']/div/main/div/form/fieldset[1]/div/div/input"));
-            WebElement loginButton = driver.findElement(By.xpath("//*[@id='root']/div/main/div/form/button")); // Robust locator
-            return emailField.isDisplayed() && loginButton.isDisplayed();
-
-        } catch (org.openqa.selenium.NoSuchElementException e) {
-            System.err.println("Один или несколько элементов на странице логина не найдены: " + e.getMessage());
-            return false;
-        }
-    }
-
-    protected boolean isRegisterButton() {
+    protected void isRegisterButton() {
         try {
             WebElement registerButton= driver.findElement(By.xpath("//*[@id='root']/div/main/div/form/button"));
 
-            return  registerButton.isDisplayed();
+            registerButton.isDisplayed();
 
         } catch (org.openqa.selenium.NoSuchElementException e) {
             System.err.println("Один или несколько элементов на странице логина не найдены: " + e.getMessage());
-            return false;
         }
     }
 
@@ -164,6 +160,8 @@ public class LoginUserTest  extends Base {
     @Test
     @Description("Ошибка регистрации при попытке ввести короткий пароль")
     public void wrongRegistrationShortPassTest() {
+
+        String expectedErrorMessage = "Неверный email или пароль.";
         openMainPage();
         openLoginPage();
         clickRegisterButtonOnLoginPage();
@@ -172,7 +170,7 @@ public class LoginUserTest  extends Base {
         registerPage.enterEmail(email);
         registerPage.enterPassword(shortPassword);
         clickOnRegisterButton();
-        verifyErrorText();
+        verifyErrorText(expectedErrorMessage);
 
     }
     @Test

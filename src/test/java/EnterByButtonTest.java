@@ -21,23 +21,20 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElementLocated;
+
 
 @RunWith(Parameterized.class)
 
 public class EnterByButtonTest extends Base {
 
-    private String name;
-    private String email;
-    private String password;
-    private final String browser;
-    private Faker faker;
-    private String shortPassword;
-    private Base createUser;
+    private final Faker faker;
+
 
     public EnterByButtonTest(String browser) {
 
-        this.browser = browser;
         faker = new Faker();
     }
 
@@ -55,9 +52,7 @@ public class EnterByButtonTest extends Base {
         driver = WebDriverFactory.createDriver();
         driver.manage().window().maximize();
 
-        name = faker.name().firstName();
-        email = faker.internet().emailAddress();
-        password = faker.internet().password();
+
     }
     @Step("Открытие главной страницы")
     private void openMainPage() {
@@ -81,6 +76,8 @@ public class EnterByButtonTest extends Base {
         mainPage.clickAccountButton();
     }
 
+
+
     @Step("Нажатие на кнопку «Личный кабинет» на главной странице")
     private void clickLogoutButtonOnProfilePage() {
         ProfilePage profilePage = new ProfilePage(driver);
@@ -103,23 +100,35 @@ public class EnterByButtonTest extends Base {
     }
     protected boolean isLoginPageLoaded() {
         try {
-            WebElement emailField = driver.findElement(By.xpath("//*[@id='root']/div/main/div/form/fieldset[1]/div/div/input"));
-            WebElement loginButton = driver.findElement(By.xpath("//*[@id='root']/div/main/div/form/button")); // Robust locator
-            return emailField.isDisplayed() && loginButton.isDisplayed();
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            WebElement emailField = wait.until(presenceOfElementLocated(By.xpath("//*[@id='root']/div/main/div/form/fieldset[1]/div/div/input")));
+            WebElement loginButton = wait.until(presenceOfElementLocated(By.xpath("//*[@id='root']/div/main/div/form/button")));
+            assertTrue(emailField.isDisplayed());
+            assertTrue(loginButton.isDisplayed());
+            return true;
+        } catch (Exception e) {
+            System.err.println("Ошибка при загрузке страницы логина: " + e.getMessage());
 
-        } catch (org.openqa.selenium.NoSuchElementException e) {
-            System.err.println("Один или несколько элементов на странице логина не найдены: " + e.getMessage());
+            return false;
+        }
+
+    }
+    protected boolean isProfilePageLoaded() {
+        try {
+            //Ожидаем, пока элемент "Мой профиль" будет отображаться
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            WebElement profileLink = wait.until(ExpectedConditions.presenceOfElementLocated(By.linkText("Профиль")));
+
+            return profileLink.isDisplayed();
+        } catch (Exception e) {
+            System.err.println("Ошибка при загрузке страницы профиля: " + e.getMessage());
             return false;
         }
     }
 
-    @Step("Переход к странице восстановления пароля")
-    private void goRecoveryPasswordPage() {
-        MainPage mainPage = new MainPage(driver);
-        mainPage.clickLoginButton();
-        LoginPage loginPage = new LoginPage(driver);
-        loginPage.clickRecoverPasswordButton();
-    }
+
+
+
 
     @Step("Нажатие на кнопку Вход на странице восстановления пароля")
     private void clickLoginButtRecoveryPasswordPage() {
@@ -145,61 +154,63 @@ public class EnterByButtonTest extends Base {
         loginPage.clickConstructor();
     }
 
-    @Step("Проверка, что открыта страница личного кабинета")
-    private void isOpenProfilePage() {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        wait.until(ExpectedConditions.urlContains("/account/profile"));
-        Assert.assertTrue("Не удалось перейти в личный кабинет.", driver.getCurrentUrl().contains("/account/profile"));
-    }
-
     @Test
     @Description("Проверка входа по кнопке «Войти в аккаунт» на главной")
     public void loginButtonTest () {
         openMainPage();
         clickLoginButtonOnMainPage();
         isLoginPageLoaded();
-        if (isLoginPageLoaded()) {
-            System.out.println("Страница логина успешно загрузилась по кнопке «Войти в аккаунт»");
-        } else {
-            System.err.println("Страница логина не загрузилась по кнопке «Войти в аккаунт»");
+        assertTrue(isLoginPageLoaded());
+
+        System.out.println("Страница логина успешно загрузилась по кнопке «Войти в аккаунт»");
 
         }
 
-    }
+
     @Test
     @Description("Вход через кнопку «Личный кабинет»")
     public void loginAccountButtonTest() {
         openMainPage();
         clickAccountButtonOnMainPage();
         isLoginPageLoaded();
-        if (isLoginPageLoaded()) {
+        assertTrue(isLoginPageLoaded());
             System.out.println("Страница логина успешно загрузилась через кнопку «Личный кабинет»");
-        } else {
-            System.err.println("Страница логина не загрузилась через кнопку «Личный кабинет»");
 
-        }
+
     }
-
     @Step("Авторизация пользователя и переход в личный кабинет")
     private void loginAndGoToProfile() {
-        driver.get(LOGIN_URL);
+        driver.get(LOGIN_URL); // Открываем страницу входа
 
         try {
             WebElement emailField = driver.findElement(By.xpath("//*[@id='root']/div/main/div/form/fieldset[1]/div/div/input"));
             emailField.sendKeys(createdUserEmail);
 
             WebElement passwordField = driver.findElement(By.xpath("//*[@id='root']/div/main/div/form/fieldset[2]/div/div/input"));
-            passwordField.sendKeys("password123"); // Password used during registration
+            passwordField.sendKeys("password123");
 
-            clickLoginButtonOnLoginPage();
+            WebElement loginButton = driver.findElement(By.xpath("//*[@id='root']/div/main/div/form/button"));
+            loginButton.click();
 
+            WebElement accountButton = driver.findElement(By.xpath("//*[@id='root']/div/header/nav/a/p"));
+            accountButton.click();
+
+            // Ожидаем, пока появится элемент "Мой профиль"
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id='root']/div/main/div/nav/ul/li[1]/a"))); // Используем elementToBeClickable
+
+            WebElement profileLink = driver.findElement(By.xpath("//*[@id='root']/div/main/div/nav/ul/li[1]/a"));
+            profileLink.click();
+
+            //  Проверка, что мы на странице профиля
+            assertTrue(isProfilePageLoaded());
             System.out.println("Авторизация и переход в личный кабинет выполнены успешно.");
+
         } catch (Exception e) {
             System.err.println("Ошибка авторизации или перехода на страницу профиля: " + e.getMessage());
-            throw new AssertionError("Ошибка авторизации или перехода на страницу профиля", e);
+            fail();
         }
     }
-
 
     @Test
     @Description("Вход через кнопку в форме регистрации")
@@ -207,13 +218,13 @@ public class EnterByButtonTest extends Base {
         openMainPage();
         openRegisterPage();
         clickLoginButtonRegisterPage();
-        if (isLoginPageLoaded()) {
-            System.out.println("Страница логина успешно загрузилась через кнопку «Войти»");
-        } else {
-            System.err.println("Страница логина не загрузилась через кнопку «Войти»");
+        isLoginPageLoaded();
+        assertTrue(isLoginPageLoaded());
+
+            System.out.println("Страница логина успешно загрузилась через кнопку «Войти» в форме регистрации");
 
         }
-    }
+
 
     @Test
     @Description("Вход через кнопку в форме восстановления пароля.")
@@ -221,13 +232,12 @@ public class EnterByButtonTest extends Base {
         openMainPage();
         clickLoginButtonOnMainPage();
         clickLoginButtRecoveryPasswordPage();
-        if (isLoginPageLoaded()) {
-            System.out.println("Страница логина успешно загрузилась через кнопку «Войти» со страницы востановления пароля");
-        } else {
-            System.err.println("Страница логина не загрузилась через кнопку «Войти» со страницы востановления пароля");
+        isLoginPageLoaded();
+        assertTrue(isLoginPageLoaded());
 
-        }
-    }
+            System.out.println("Страница логина успешно загрузилась через кнопку «Войти» со страницы востановления пароля");
+
+          }
 
     @Test
     @Description("Переход в личный кабинет")

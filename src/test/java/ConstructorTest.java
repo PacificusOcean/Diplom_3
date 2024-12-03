@@ -18,21 +18,17 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
 
+
 @RunWith(Parameterized.class)
+
 public class ConstructorTest extends Base{
 
-    private String name;
-    private String email;
-    private String password;
-    private final String browser;
+
     private Faker faker;
-    private String shortPassword;
-    private Base createUser;
 
     public ConstructorTest(String browser) {
 
-        this.browser = browser;
-        faker = new Faker();
+          faker = new Faker();
     }
 
     @Parameterized.Parameters(name = "Browser: {0}")
@@ -49,19 +45,27 @@ public class ConstructorTest extends Base{
         driver = WebDriverFactory.createDriver();
         driver.manage().window().maximize();
 
-        name = faker.name().firstName();
-        email = faker.internet().emailAddress();
-        password = faker.internet().password();
+
     }
 
     @Step("Открытие главной страницы")
     private void openMainPage() {
         driver.get(URL);
     }
+
     @Step("Проверка и переход к разделу: {sectionName}")
-    private void searchSection(String sectionName) {
+    private void searchSection(String elementName) {
         MainPage mainPage = new MainPage(driver);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        try {
+
+            mainPage.getHeaderClass(elementName);
+
+        } catch (Exception e) {
+            //  обработка исключений
+            System.err.println("Ошибка при переходе к разделу: " + elementName + "\n" + e.getMessage());
+            throw new RuntimeException("Не удалось перейти к разделу " + elementName, e);
+        }
     }
 
 

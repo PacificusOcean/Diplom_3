@@ -61,28 +61,25 @@ public class MainPage {
         driver.findElement(fillingsButton).click();
     }
 
-    public static By getHeader(String headerName) {
-        switch (headerName.toLowerCase()) {
-            case "начинки":
-                return By.xpath("//h2[text()='Начинки']");
-            case "соусы":
-                return By.xpath("//h2[text()='Соусы']");
-            case "булки":
-                return By.xpath("//h2[text()='Булки']");
-            default:
-                throw new IllegalArgumentException("Неправильный заголовок раздела: " + headerName);
-        }
+    public WebElement getElementByName(String elementName) {
+        return driver.findElement(By.name(elementName));
     }
-    public String getHeaderClass(String headerName) {
-        switch (headerName.toLowerCase()) {
+
+
+
+    public void getHeaderClass(String elementName) {
+        switch (elementName.toLowerCase()) {
             case "булки":
-                return driver.findElement(bunsHeader).getAttribute("class");
+                driver.findElement(bunsHeader).getAttribute("class");
+                return;
             case "соусы":
-                return driver.findElement(saucesHeader).getAttribute("class");
+                driver.findElement(saucesHeader).getAttribute("class");
+                return;
             case "начинки":
-                return driver.findElement(fillingsHeader).getAttribute("class");
+                driver.findElement(fillingsHeader).getAttribute("class");
+                return;
             default:
-                throw new IllegalArgumentException("Такого раздела не существует: " + headerName);
+                throw new IllegalArgumentException("Такого раздела не существует: " + elementName);
         }
     }
     public By getAccountButton() {
