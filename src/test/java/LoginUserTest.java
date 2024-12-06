@@ -21,8 +21,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElementLocated;
 
-
-
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
@@ -38,11 +36,11 @@ public class LoginUserTest  extends Base {
     private String password;
     private final Faker faker = new Faker();
     private String shortPassword;
+    private LoginPage loginPage;
 
     public LoginUserTest(String browser) {
 
     }
-
 
     @Parameterized.Parameters(name = "Browser: {0}")
     public static Collection<Object[]> browsers() {
@@ -56,7 +54,7 @@ public class LoginUserTest  extends Base {
     public void setUp() {
         driver = WebDriverFactory.createDriver();
         driver.manage().window().maximize();
-
+        loginPage = new LoginPage(driver);
 
         name = faker.name().firstName();
         email = faker.internet().emailAddress();
@@ -92,24 +90,9 @@ public class LoginUserTest  extends Base {
 
     @Step("Проверка перехода на страницу логина после регистрации")
     private void checkLoginPageAfterRegistration() {
+
         driver.get(LOGIN_URL);
-        try {
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
-            WebElement emailField = wait.until(presenceOfElementLocated(By.xpath("//*[@id='root']/div/main/div/form/fieldset[1]/div/div/input")));
-            assertTrue(emailField.isDisplayed());
-
-            WebElement passwordField = wait.until(presenceOfElementLocated(By.xpath("//*[@id='root']/div/main/div/form/fieldset[2]/div/div/input")));
-            assertTrue(passwordField.isDisplayed());
-
-            WebElement loginButton = wait.until(presenceOfElementLocated(By.xpath("//*[@id='root']/div/main/div/form/button")));
-            assertTrue(loginButton.isDisplayed());
-
-
-        } catch (Exception e) {
-            System.err.println("Ошибка при проверке элементов страницы логина: " + e.getMessage());
-            fail();
-        }
-
+        assertTrue("Страница логина не загружена.", loginPage.isLoginPageLoaded());
     }
     @Step("Проверка появления ошибки на странице регистрации")
     private void verifyErrorText(String expectedErrorMessage) {
@@ -130,9 +113,7 @@ public class LoginUserTest  extends Base {
         }
     }
 
-
-
-    protected void isRegisterButton() {
+protected void isRegisterButton() {
         try {
             WebElement registerButton= driver.findElement(By.xpath("//*[@id='root']/div/main/div/form/button"));
 
@@ -142,7 +123,17 @@ public class LoginUserTest  extends Base {
             System.err.println("Один или несколько элементов на странице логина не найдены: " + e.getMessage());
         }
     }
+protected void isTextRegistrationOnRegisterPage() {
+    try {
+        WebElement registerText= driver.findElement(By.xpath("//*[@id=\"root\"]/div/main/div/h2"));
 
+        registerText.isDisplayed();
+
+    } catch (org.openqa.selenium.NoSuchElementException e) {
+        System.err.println("Один или несколько элементов на странице логина не найдены: " + e.getMessage());
+    }
+
+}
 
     @Test
     @Description("Тест успешной регистрации ")
@@ -185,6 +176,8 @@ public class LoginUserTest  extends Base {
         registerPage.enterPassword("");
         isRegisterButton();
         clickOnRegisterButton();
+        isRegisterButton(); // проверяем что кнопка регистрации на месте, соответственно мы остались на странице регистрации
+        isTextRegistrationOnRegisterPage(); // Дополнительно проверили что на странице остался текст "Регистрация"
 
     }
 

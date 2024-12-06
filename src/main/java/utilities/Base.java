@@ -5,27 +5,21 @@ import io.restassured.response.Response;
 import org.junit.After;
 import org.junit.Before;
 import org.openqa.selenium.WebDriver;
-import static utilities.WebDriverFactory.*;
-import org.json.JSONObject;
 
+import org.json.JSONObject;
 
 public abstract class Base {
 
 protected WebDriver driver;
 protected final String URL = "https://stellarburgers.nomoreparties.site/";
-protected final String PROFILE_URL = "https://stellarburgers.nomoreparties.site/account/profile";
+
 protected final String LOGIN_URL = "https://stellarburgers.nomoreparties.site/login";
 protected String createdUserEmail = null;
-protected String userToken;
-
-
-
-
 
     @Before
 
 public void setup() {
-        driver = createDriver();
+
         setupUser();
     }
     protected void setupUser() {
@@ -65,7 +59,7 @@ protected void deleteUser() {
         try {
             if (createdUserEmail != null) {
                 Response response = RestAssured.given()
-                        .delete(URL + "api/auth/user/" + createdUserEmail); // Используем полное URL
+                        .delete(URL + "api/auth/user/" + createdUserEmail);
 
                 int statusCode = response.getStatusCode();
 
@@ -84,8 +78,6 @@ protected void deleteUser() {
             throw new RuntimeException("Ошибка при удалении пользователя", e);
         }
     }
-
-
 
     @After
 public void tearDown() {

@@ -1,15 +1,9 @@
 package utilities;
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import io.qameta.allure.Step;
-
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-
 
 public class WebDriverFactory {
 
@@ -31,7 +25,7 @@ public class WebDriverFactory {
     return new ChromeDriver(options);
     }
 private static WebDriver createYandexDriver() {
-        String yandexDriverPath = "C:\\\\cygwin64\\home\\Home\\Diplom\\yandexdriver-24.10.1.598-win64"; // путь к драйверу у
+        String yandexDriverPath = "C:\\\\cygwin64\\home\\Home\\Diplom\\yandexdriver-24.10.1.598-win64\\yandexdriver.exe"; // путь к драйверу у
         System.setProperty("webdriver.chrome.driver", yandexDriverPath);
 
         ChromeOptions options = new ChromeOptions();
@@ -39,6 +33,5 @@ private static WebDriver createYandexDriver() {
         options.addArguments("--start-maximized");
         return new ChromeDriver(options);
     }
-
 
 }

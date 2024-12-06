@@ -29,7 +29,7 @@ import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElemen
 @RunWith(Parameterized.class)
 
 public class EnterByButtonTest extends Base {
-
+    LoginPage loginPage = new LoginPage(driver);
     private final Faker faker;
 
 
@@ -64,11 +64,7 @@ public class EnterByButtonTest extends Base {
         MainPage mainPage = new MainPage(driver);
         mainPage.clickLoginButton();
     }
-    @Step("Нажатие на кнопку «Войти в аккаунт» на  странице логина")
-    private void clickLoginButtonOnLoginPage() {
-        LoginPage loginPage = new LoginPage(driver);
-        loginPage.clickLoginButton();
-    }
+
 
     @Step("Нажатие на кнопку «Личный кабинет» на главной странице")
     private void clickAccountButtonOnMainPage() {
@@ -115,7 +111,7 @@ public class EnterByButtonTest extends Base {
     }
     protected boolean isProfilePageLoaded() {
         try {
-            //Ожидаем, пока элемент "Мой профиль" будет отображаться
+            //Ожидаем, пока элемент "Профиль" будет отображаться
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
             WebElement profileLink = wait.until(ExpectedConditions.presenceOfElementLocated(By.linkText("Профиль")));
 
@@ -125,9 +121,6 @@ public class EnterByButtonTest extends Base {
             return false;
         }
     }
-
-
-
 
 
     @Step("Нажатие на кнопку Вход на странице восстановления пароля")
@@ -144,13 +137,13 @@ public class EnterByButtonTest extends Base {
 
     @Step("Клик по кнопке личный кабинет из личного кабинета")
     private void clickAccountButtonOnLoginPage() {
-        LoginPage loginPage = new LoginPage(driver);
+
         loginPage.clickAccountButton();
     }
 
     @Step("Клик по кнопке конструктор из личного кабинета")
     private void clickConstructorButton() {
-        LoginPage loginPage = new LoginPage(driver);
+
         loginPage.clickConstructor();
     }
 
@@ -175,7 +168,6 @@ public class EnterByButtonTest extends Base {
         isLoginPageLoaded();
         assertTrue(isLoginPageLoaded());
             System.out.println("Страница логина успешно загрузилась через кнопку «Личный кабинет»");
-
 
     }
     @Step("Авторизация пользователя и переход в личный кабинет")
@@ -225,7 +217,6 @@ public class EnterByButtonTest extends Base {
 
         }
 
-
     @Test
     @Description("Вход через кнопку в форме восстановления пароля.")
     public void LoginByLoginButtonRecoveryPasswordPageTest() {
@@ -268,7 +259,6 @@ public class EnterByButtonTest extends Base {
             System.err.println("Ошибка перехода в конструктор: " + e.getMessage());
             throw new AssertionError("Ошибка перехода в конструктор", e);
         }
-
     }
 
     @Test
@@ -289,7 +279,6 @@ public class EnterByButtonTest extends Base {
             System.err.println("Ошибка перехода в конструктор: " + e.getMessage());
             throw new AssertionError("Ошибка перехода в конструктор", e);
         }
-
     }
 
     @Test
