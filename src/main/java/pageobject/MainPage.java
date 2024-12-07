@@ -1,7 +1,6 @@
 package pageobject;
 
 import io.qameta.allure.Step;
-import org.junit.Assert;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -19,9 +18,13 @@ public  class MainPage {
 
     private final By accountButton = By.xpath("//p[contains(text(),'Личный Кабинет')]"); //кнопка личный кабинет
     private final By loginButton = By.xpath("//*[@id='root']/div/main/section[2]/div/button"); // Кнопка войти в аккаунт видна только в яндексе
-    private final By bunsHeader = By.xpath("//h2[text()='Булки']");// раздел булки
-    private final By saucesHeader = By.xpath("//h2[text()='Соусы']"); // раздел соусы
-    private final By fillingsHeader = By.xpath("//*[@id=\"root\"]/div/main/section[1]/div[1]/div[3]/span");//раздел начинки
+    private final By saucesHeader = By.xpath("//section[1]/div[1]/div[2]/span"); // Кнопка "Соусы"
+    private final By bunsHeader = By.xpath("//section[1]/div[1]/div[1]/span"); // Кнопка булки
+    private final By fillingsHeader = By.xpath("//section[1]/div[1]/div[3]/span");//Кнопка начинки
+
+   private final By bunsSection = By.xpath("//section[1]/div[1]/div[1]"); // Раздел "Булки"
+   private final By saucesSection = By.xpath("//section[1]/div[1]/div[2]"); // Раздел "Соусы"
+   private final By fillingsSection = By.xpath("//section[1]/div[1]/div[3]"); // Раздел "Начинки"
 
     // кликаем по кнопкам
 
@@ -33,60 +36,94 @@ public  class MainPage {
         driver.findElement(loginButton).click();
     }
 
-    @Step("Проверка видимости элемента")
-    public boolean isElementDisplayed(By locator) {
-        try {
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    @Step("Проверка секции")
+    public void searchSection(String sectionName) {
+        By sectionLocator = getHeaderElement(sectionName);
+        if ( isElementDisplayed (sectionLocator)) {
+            switchAnotherHeader(sectionName);
+        }
+        clickHeader(sectionName);
+    }
 
-            wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
-            return true;
-        } catch (Exception e) {
-            return false;
+    @Step("Проверка, что раздел активен")
+    public void isHeaderDisplayed(String sectionName) {
+        By sectionLocator = getHeaderElement(sectionName);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        wait.until(ExpectedConditions.attributeContains(sectionLocator, "class", "tab_tab_type_current__2BEPc"));
+        assert isElementDisplayed(sectionLocator) : "Раздел '" + sectionName + "' не активен";
+
+    }
+  //Проверка видимости элемента
+
+    private boolean isElementDisplayed(By sectionLocator) {
+        return driver.findElement(sectionLocator).getAttribute("class").contains("tab_tab_type_current__2BEPc");
+    }
+
+    @Step("Нажатие на вкладку «Начинки»")
+    public void clickFillingsHeader() {
+        driver.findElement(fillingsHeader).click();
+    }
+
+    @Step("Нажатие на вкладку «Начинки»")
+    public void clickSaucesHeader() {
+        driver.findElement(saucesHeader).click();
+    }
+
+    @Step("Нажатие на вкладку «Начинки»")
+    public void clickBunsHeader() {
+        driver.findElement(bunsHeader).click();
+    }
+// Переключения по разделам
+
+    private void clickHeader(String sectionName) {
+        switch (sectionName.toLowerCase()) {
+            case "начинки":
+                clickFillingsHeader();
+                break;
+            case "соусы":
+                clickSaucesHeader();
+                break;
+            case "булки":
+                clickBunsHeader();
+                break;
+            default:
+                throw new IllegalArgumentException("Неправильный раздел: " + sectionName);
         }
     }
 
-    public void searchSection(String elementName) {
-        WebElement element = getHeaderElement(elementName);
-        if (element != null) {
-            element.click();
-
-            Assert.assertTrue("Страница раздела не загрузилась.", isElementDisplayed(By.xpath("//h2[text()='" + elementName + "']")));
-
-        } else {
-            throw new RuntimeException("Элемент раздела '" + elementName + "' не найден.");
+    private void switchAnotherHeader(String currentSectionName) {
+        switch (currentSectionName.toLowerCase()) {
+            case "начинки":
+                clickSaucesHeader();
+                break;
+            case "соусы":
+                clickBunsHeader();
+                break;
+            case "булки":
+                clickFillingsHeader();
+                break;
+            default:
+                throw new IllegalArgumentException("Неправильный раздел: " + currentSectionName);
         }
     }
-    @Step("Проверка отображения заголовка {sectionName}")
-    public boolean isSectionDisplayed(String sectionName) {
-        WebElement header = getHeaderElement(sectionName);
-        return header != null && header.isDisplayed();
-    }
 
-    public WebElement getHeaderElement(String sectionName) {
-        By locator;
+    public By getHeaderElement(String sectionName) {
 
         switch (sectionName.toLowerCase()) {
             case "булки":
-                locator = bunsHeader;
-                break;
+                return bunsSection;
             case "соусы":
-                locator = saucesHeader;
-                break;
+                return saucesSection;
             case "начинки":
-                locator = fillingsHeader;
-                break;
+                return  fillingsSection;
             default:
                 throw new IllegalArgumentException("Такого раздела не существует: " + sectionName);
         }
 
-        try {
-            return new WebDriverWait(driver, Duration.ofSeconds(15))
-                    .until(ExpectedConditions.presenceOfElementLocated(locator));
-        } catch (Exception e) {
-            return null;
         }
     }
-}
+
+
 
 
 

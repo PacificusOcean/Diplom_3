@@ -1,6 +1,6 @@
 import org.junit.*;
 import pageobject.*;
-import com.github.javafaker.Faker;
+
 import io.qameta.allure.Description;
 import io.qameta.allure.Step;
 import org.junit.Test;
@@ -21,6 +21,7 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
 
+
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElementLocated;
@@ -29,13 +30,12 @@ import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElemen
 @RunWith(Parameterized.class)
 
 public class EnterByButtonTest extends Base {
-    LoginPage loginPage = new LoginPage(driver);
-    private final Faker faker;
+
+
 
 
     public EnterByButtonTest(String browser) {
 
-        faker = new Faker();
     }
 
     @Parameterized.Parameters(name = "Browser: {0}")
@@ -65,14 +65,11 @@ public class EnterByButtonTest extends Base {
         mainPage.clickLoginButton();
     }
 
-
     @Step("Нажатие на кнопку «Личный кабинет» на главной странице")
     private void clickAccountButtonOnMainPage() {
         MainPage mainPage = new MainPage(driver);
         mainPage.clickAccountButton();
     }
-
-
 
     @Step("Нажатие на кнопку «Личный кабинет» на главной странице")
     private void clickLogoutButtonOnProfilePage() {
@@ -135,17 +132,10 @@ public class EnterByButtonTest extends Base {
         profilePage.clickLogoButton();
     }
 
-    @Step("Клик по кнопке личный кабинет из личного кабинета")
-    private void clickAccountButtonOnLoginPage() {
 
-        loginPage.clickAccountButton();
-    }
 
     @Step("Клик по кнопке конструктор из личного кабинета")
-    private void clickConstructorButton() {
 
-        loginPage.clickConstructor();
-    }
 
     @Test
     @Description("Проверка входа по кнопке «Войти в аккаунт» на главной")
@@ -253,7 +243,7 @@ public class EnterByButtonTest extends Base {
         clickAccountButtonOnMainPage();
         loginAndGoToProfile();
         try {
-            clickConstructorButton();
+            clickAccountButtonOnMainPage();
             System.out.println("Переход в конструктор выполнен успешно.");
         } catch (Exception e) {
             System.err.println("Ошибка перехода в конструктор: " + e.getMessage());
@@ -292,7 +282,7 @@ public class EnterByButtonTest extends Base {
         openMainPage();
         clickAccountButtonOnMainPage();
         loginAndGoToProfile();
-        clickAccountButtonOnLoginPage();
+
         try{
             clickLogoutButtonOnProfilePage();
             System.out.println("Выход из личного кабинета выполнен успешно.");

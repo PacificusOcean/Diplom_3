@@ -18,6 +18,8 @@ import java.util.Collection;
 
 public class ConstructorTest extends Base {
 
+    private MainPage mainPage;
+
     public ConstructorTest(String browser) {
 
     }
@@ -36,7 +38,6 @@ public class ConstructorTest extends Base {
 
         driver = WebDriverFactory.createDriver();
         driver.manage().window().maximize();
-
     }
 
     @Step("Открытие главной страницы")
@@ -44,58 +45,32 @@ public class ConstructorTest extends Base {
         driver.get(URL);
     }
 
-
     @Test
     @Description("Переход в раздел 'Булки'")
     public void checkBunSectionTest() {
+        mainPage = new MainPage(driver);
         openMainPage();
-        MainPage mainPage = new MainPage(driver);
-
-        try {
-            boolean isBunsDisplayed = mainPage.isSectionDisplayed("Булки");
-            Assert.assertTrue("Раздел 'Булки' не отображается.", isBunsDisplayed);
-
-            } catch (Exception e) {
-            System.err.println("Ошибка: " + e.getMessage());
-            e.printStackTrace();
-            throw new AssertionError("Ошибка перехода в раздел 'Булки'", e);
-        }
-
+        mainPage.searchSection("Булки");
+        mainPage.isHeaderDisplayed("Булки");
     }
 
     @Test
     @Description("Переход в раздел 'Соусы'")
     public void checkSaucesSectionTest() {
+        mainPage = new MainPage(driver);
         openMainPage();
-        MainPage mainPage = new MainPage(driver);
-        try {
-            boolean isSaucesDisplayed = mainPage.isSectionDisplayed("Соусы");
-            Assert.assertTrue("Раздел 'Соусы' не отображается.", isSaucesDisplayed);
-            mainPage.searchSection("Соусы");
-            System.out.println("Переход в раздел 'Соусы' выполнен успешно.");
-        } catch (Exception e) {
-            System.err.println("Ошибка перехода в раздел 'Соусы': " + e.getMessage());
-            e.printStackTrace();
-            throw new AssertionError("Ошибка перехода в раздел 'Соусы'", e);
-        }
+        mainPage.searchSection("Соусы");
+        mainPage.isHeaderDisplayed("Соусы");
+
     }
 
     @Test
     @Description("Переход в раздел 'Начинки'")
     public void checkFillingsSectionTest() {
+        mainPage = new MainPage(driver);
         openMainPage();
-        MainPage mainPage = new MainPage(driver);
-        try {
-            boolean isFillingsDisplayed = mainPage.isSectionDisplayed("Начинки");
-            Assert.assertTrue("Раздел 'Начинки' не отображается.", isFillingsDisplayed);
-
-            mainPage.searchSection("Начинки");
-            System.out.println("Переход в раздел 'Начинки' выполнен успешно.");
-        } catch (Exception e) {
-            System.err.println("Ошибка перехода в раздел 'Начинки': " + e.getMessage());
-            e.printStackTrace();
-            throw new AssertionError("Ошибка перехода в раздел 'Начинки'", e);
-        }
+        mainPage.searchSection("Начинки");
+        mainPage.isHeaderDisplayed("Начинки");
     }
 
     @After
